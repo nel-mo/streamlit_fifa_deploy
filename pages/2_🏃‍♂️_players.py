@@ -1,4 +1,21 @@
 import streamlit as st
+import requests
+import base64
+
+@st.cache_data
+def load_image_64(url):
+    headers = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/131.0.0.0 Safari/537.36"
+    ),
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+    }  
+    headers["Referer"] = "https://sofifa.com/"
+    data = requests.get(url, headers=headers).content
+    return "data:image/png;base64," + base64.b64encode(data).decode()
 
 st.set_page_config(
     page_title="Players",
@@ -19,8 +36,7 @@ player = st.sidebar.selectbox("Jogador", players) # Cria o selectbox com os joga
 
 player_stats = df_data[df_data["Name"] == player].iloc[0]
 
-#st.image(player_stats["Photo"])
-st.image("https://publish.realmadrid.com/content/dam/portals/realmadrid-com/es-es/sports/football/legendary-players/cristiano-ronaldo-dos-santos-aveiro/assets/1330603286208.jpg")
+st.image(load_image_64(player_stats["Photo"]))
 st.title(player_stats["Name"])
 
 st.markdown(f"**Clube:** {player_stats['Club']}")
